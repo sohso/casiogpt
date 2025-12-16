@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=320, initial-scale=1.0, user-scalable=no">
+<title>CASIO fx-991EX</title>
+<style>
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: monospace;
+}
+
+#phone {
+  width: 320px;
+  height: 568px;
+  background: #1b1b1b;
+  display: flex;
+  justify-content: center;
+  padding-top: 50px;
+  box-sizing: border-box;
+}
+
+#lcd {
+  width: 240px;
+  height: 64px;
+  background: #cfd8dc;
+  color: #0a7d00; /* green LCD */
+  border: 2px solid #888;
+  padding: 6px;
+  box-shadow: inset 0 0 3px #666;
+  position: relative;
+  overflow: hidden;
+}
+
+#top {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+#screen {
+  white-space: pre;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+#cursor {
+  display: inline-block;
+  width: 8px;
+  background: #0a7d00;
+  margin-left: 2px;
+  animation: blink 1s step-start infinite;
+}
+
+@keyframes blink {
+  50% { background: transparent; }
+}
+
+#kbd {
+  position: absolute;
+  opacity: 0;
+}
+</style>
+</head>
+<body>
+
+<div id="phone">
+  <div id="lcd">
+    <div id="top">CASIO fx‑991EX</div>
+    <div id="screen">READY           <span id="cursor"> </span></div>
+  </div>
+</div>
+
+<input id="kbd" autocomplete="off">
+
+<script>
+const screen = document.getElementById("screen");
+const cursor = document.getElementById("cursor");
+const kbd = document.getElementById("kbd");
+
+let buffer = "";
+
+// Your Cloudflare Worker URL
+const ENDPOINT = "https://aged-bird-acd4.seif01019243525.workers.dev";
+
+function pad(s) {
+  return s.padEnd(16).slice(0,16);
+}
+
+function render(line1, line2) {
+  screen.innerHTML = pad(line1) + "\n" + pad(line2) + " ";
+}
+
+window.onload = () => kbd.focus();
+document.body.onclick = () => kbd.focus();
+
+kbd.addEventListener("input", () => {
+  buffer = kbd.value;
+  render("READY", "> " + buffer.slice(-14));
+});
+
+kbd.addEventListener("keydown", async e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const prompt = buffer.trim();
+    buffer = "";
+    kbd.value = "";
+    render("WORKING", "PLEASE WAIT");
+
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt })
+      });
+
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content || data.reply || "ERROR";
+
+      render(text.slice(0,16), text.slice(16,32));
+    } catch(err) {
+      render("NETWORK", "ERROR");
+    }
+  }
+});
+</script>
+
+</body>
+</html>
