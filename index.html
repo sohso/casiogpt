@@ -2,38 +2,208 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Casio AI Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Eliana ❤️</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg-dark: #0a0104;
+            --bg-light: #240512;
+            --envelope-main: #d90429;
+            --envelope-flap: #ef233c;
+            --envelope-shadow: #8d0000;
+            --paper-color: #fff5f7;
+            --text-color: #590d22;
+            --accent-pink: #ff8fa3;
+            --accent-gold: #ffd700;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            font-family: 'Courier New', monospace;
-            min-height: 100vh;
+            height: 100vh;
+            background: radial-gradient(ellipse at center, var(--bg-light) 0%, var(--bg-dark) 100%);
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            justify-content: flex-start;
-            padding: 10px;
-            color: #00ff00;
+            overflow: hidden;
+            font-family: 'Georgia', serif;
         }
 
-        .calculator-body {
-            width: 100%;
-            max-width: 340px;
-            background: linear-gradient(135deg, #0f0f0f 0%, #1f1f1f 100%);
-            border-radius: 8px;
-            padding: 12px;
-            box-shadow: 
-                0 10px 30px rgba(0, 0, 0, 0.8),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        /* Ambient Hearts */
+        #heart-container { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+        .ambient-heart { position: absolute; color: var(--accent-pink); opacity: 0; animation: floatUp 6s linear forwards; }
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) scale(0.5); opacity: 0; }
+            20% { opacity: 0.5; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
         }
 
+        /* Start Screen */
+        #start-screen {
+            position: fixed; inset: 0; background: rgba(10, 1, 4, 0.98);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000; cursor: pointer; transition: opacity 0.8s ease;
+        }
+        #start-screen h1 { color: var(--accent-pink); font-size: 1.6rem; letter-spacing: 3px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); text-shadow: 0 0 20px var(--accent-pink); } }
+
+        /* Initial Kiss */
+        #kiss-overlay { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 200px; z-index: 500; pointer-events: none; opacity: 0; }
+        .kiss-active { animation: smack 1.5s forwards ease-out; }
+        @keyframes smack {
+            0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+            30% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; filter: blur(8px); }
+        }
+
+        /* Envelope */
+        .wrapper { position: relative; width: 320px; height: 220px; cursor: pointer; z-index: 10; }
+        .envelope { position: relative; width: 100%; height: 100%; background: var(--envelope-main); box-shadow: 0 20px 40px rgba(0,0,0,0.6); border-radius: 4px; }
+        .envelope::before { content: ""; position: absolute; z-index: 2; border-top: 110px solid transparent; border-right: 160px solid var(--envelope-flap); border-bottom: 110px solid var(--envelope-flap); border-left: 160px solid var(--envelope-shadow); }
+        .flap { position: absolute; top: 0; width: 0; height: 0; border-left: 160px solid transparent; border-right: 160px solid transparent; border-top: 120px solid var(--envelope-flap); transform-origin: top; transition: transform 0.6s ease; z-index: 3; }
+        .seal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; background: #8d0000; border-radius: 50%; z-index: 4; display: flex; justify-content: center; align-items: center; color: var(--accent-gold); box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+
+        /* Letter Styling */
+        .letter {
+            position: absolute; bottom: 10px; left: 10px; width: 300px; height: 180px;
+            background: var(--paper-color); padding: 25px 20px;
+            transition: all 0.8s 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1; overflow-y: auto; overflow-x: hidden; border-radius: 2px;
+            scroll-behavior: smooth;
+        }
+        .letter p { font-size: 1.1rem; line-height: 1.6; color: var(--text-color); white-space: pre-wrap; margin-bottom: 20px; }
+
+        /* Photo and Mini Kiss */
+        .photo-container {
+            position: relative; width: 100%; display: none; /* Hide initially */
+            margin-top: 20px; text-align: center; padding-bottom: 40px;
+        }
+        .photo-container img {
+            max-width: 90%; height: auto; border: 10px solid white; border-bottom: 40px solid white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2); transform: rotate(-3deg);
+        }
+        .photo-kiss {
+            position: absolute; top: 20%; right: 15%; font-size: 60px;
+            opacity: 0; transform: scale(0); pointer-events: none;
+        }
+
+        /* Animations */
+        .wrapper.open .flap { transform: rotateX(180deg); z-index: 0; }
+        .wrapper.open .seal { opacity: 0; transition: 0.3s; }
+        .wrapper.open .letter { transform: translateY(-140px); height: 420px; z-index: 10; }
+
+        .photo-fade-in { display: block !important; animation: fadeInSlide 1.2s forwards ease-out; }
+        @keyframes fadeInSlide { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .mini-kiss-animate { animation: miniSmack 0.6s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes miniSmack { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1) rotate(15deg); opacity: 1; } }
+
+        .particle { position: absolute; top: 50%; left: 50%; pointer-events: none; z-index: 100; }
+        @keyframes explode { 0% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
+
+        .letter::-webkit-scrollbar { width: 4px; }
+        .letter::-webkit-scrollbar-thumb { background: var(--accent-pink); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="heart-container"></div>
+    <div id="kiss-overlay">💋</div>
+
+    <div id="start-screen" onclick="initApp()">
+        <h1>TAP TO OPEN 💌</h1>
+    </div>
+
+    <div class="wrapper" id="main-wrapper" onclick="openLetter()">
+        <div class="envelope">
+            <div class="flap"></div>
+            <div class="seal">❤️</div>
+            <div class="letter" id="letter-container">
+                <p id="typewriter-text"></p>
+                <div class="photo-container" id="photo-reveal">
+                    <img src="https://i.ibb.co/HpKfDyL0/IMG-20251219-143736.jpg" alt="Eliana">
+                    <div class="photo-kiss" id="mini-kiss">💋</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const content = "Eliana ❤️\n\nI wanted to make something just for you, not big or complicated  just honest. You have this way of making days brighter and moments feel lighter, without even trying. Being with you feels natural, comforting, and special. This is a reminder that you matter to me more than I can fully say. Always yours, I love you smm baby ❤️";
+        
+        let opened = false;
+
+        function initApp() {
+            document.getElementById('start-screen').style.opacity = '0';
+            setTimeout(() => document.getElementById('start-screen').remove(), 800);
+            setInterval(spawnHeart, 400);
+        }
+
+        function openLetter() {
+            if (opened) return;
+            opened = true;
+            document.getElementById('main-wrapper').classList.add('open');
+            triggerExplosion();
+            setTimeout(() => { document.getElementById('kiss-overlay').classList.add('kiss-active'); }, 500);
+            setTimeout(startTyping, 1500);
+        }
+
+        function triggerExplosion() {
+            for (let i = 0; i < 40; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.innerHTML = ['❤️', '✨', '💖'][Math.floor(Math.random() * 3)];
+                p.style.setProperty('--tx', (Math.random() - 0.5) * 400 + 'px');
+                p.style.setProperty('--ty', (Math.random() - 0.8) * 400 + 'px');
+                p.style.animation = 'explode 1s ease-out forwards';
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1000);
+            }
+        }
+
+        function startTyping() {
+            const target = document.getElementById('typewriter-text');
+            const container = document.getElementById('letter-container');
+            const photo = document.getElementById('photo-reveal');
+            const miniKiss = document.getElementById('mini-kiss');
+            let i = 0;
+
+            function type() {
+                if (i < content.length) {
+                    target.textContent += content.charAt(i);
+                    i++;
+                    
+                    // Smoother scroll logic: only scroll if the text is near the bottom
+                    if (container.scrollHeight - container.scrollTop < 250) {
+                        container.scrollTop = container.scrollHeight;
+                    }
+                    setTimeout(type, 50);
+                } else {
+                    // Final reveal
+                    setTimeout(() => {
+                        photo.classList.add('photo-fade-in');
+                        setTimeout(() => {
+                            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+                            setTimeout(() => { miniKiss.classList.add('mini-kiss-animate'); }, 800);
+                        }, 200);
+                    }, 500);
+                }
+            }
+            type();
+        }
+
+        function spawnHeart() {
+            const h = document.createElement('div');
+            h.className = 'ambient-heart';
+            h.innerHTML = '❤️';
+            h.style.left = Math.random() * 100 + 'vw';
+            h.style.fontSize = Math.random() * 15 + 10 + 'px';
+            document.getElementById('heart-container').appendChild(h);
+            setTimeout(() => h.remove(), 6000);
+        }
+    </script>
+</body>
+</html>
         .screen-container {
             width: 100%;
             height: 140px;
