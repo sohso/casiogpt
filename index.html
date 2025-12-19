@@ -20,11 +20,11 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            height: 100vh;
+            height: 100dvh;
             background: radial-gradient(ellipse at center, var(--bg-light) 0%, var(--bg-dark) 100%);
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: center; /* Perfectly centers everything */
             overflow: hidden;
             font-family: 'Georgia', serif;
         }
@@ -44,11 +44,11 @@
             display: flex; justify-content: center; align-items: center;
             z-index: 1000; cursor: pointer; transition: opacity 0.8s ease;
         }
-        #start-screen h1 { color: var(--accent-pink); font-size: 1.6rem; letter-spacing: 3px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); text-shadow: 0 0 20px var(--accent-pink); } }
+        #start-screen h1 { color: var(--accent-pink); font-size: 1.4rem; letter-spacing: 2px; text-align: center; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); text-shadow: 0 0 15px var(--accent-pink); } }
 
         /* Initial Kiss */
-        #kiss-overlay { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 200px; z-index: 500; pointer-events: none; opacity: 0; }
+        #kiss-overlay { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 150px; z-index: 500; pointer-events: none; opacity: 0; }
         .kiss-active { animation: smack 1.5s forwards ease-out; }
         @keyframes smack {
             0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
@@ -56,53 +56,111 @@
             100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; filter: blur(8px); }
         }
 
-        /* Envelope */
-        .wrapper { position: relative; width: 320px; height: 220px; cursor: pointer; z-index: 10; }
-        .envelope { position: relative; width: 100%; height: 100%; background: var(--envelope-main); box-shadow: 0 20px 40px rgba(0,0,0,0.6); border-radius: 4px; }
-        .envelope::before { content: ""; position: absolute; z-index: 2; border-top: 110px solid transparent; border-right: 160px solid var(--envelope-flap); border-bottom: 110px solid var(--envelope-flap); border-left: 160px solid var(--envelope-shadow); }
-        .flap { position: absolute; top: 0; width: 0; height: 0; border-left: 160px solid transparent; border-right: 160px solid transparent; border-top: 120px solid var(--envelope-flap); transform-origin: top; transition: transform 0.6s ease; z-index: 3; }
-        .seal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; background: #8d0000; border-radius: 50%; z-index: 4; display: flex; justify-content: center; align-items: center; color: var(--accent-gold); box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
-
-        /* Letter Styling */
-        .letter {
-            position: absolute; bottom: 10px; left: 10px; width: 300px; height: 180px;
-            background: var(--paper-color); padding: 25px 20px;
-            transition: all 0.8s 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 1; overflow-y: auto; overflow-x: hidden; border-radius: 2px;
-            scroll-behavior: smooth;
+        /* Main Container */
+        .wrapper { 
+            position: relative; 
+            width: 85vw; 
+            max-width: 320px; 
+            aspect-ratio: 32 / 22; 
+            z-index: 10;
         }
-        .letter p { font-size: 1.1rem; line-height: 1.6; color: var(--text-color); white-space: pre-wrap; margin-bottom: 20px; }
+
+        .envelope { 
+            position: absolute;
+            inset: 0;
+            background: var(--envelope-main); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            border-radius: 4px; 
+            z-index: 5;
+        }
+
+        .envelope::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: var(--envelope-shadow);
+            clip-path: polygon(0 0, 50% 50%, 100% 0, 100% 100%, 0 100%);
+            z-index: 7; /* Sits above the letter when closed */
+        }
+
+        .flap {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 60%;
+            background: var(--envelope-flap);
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            transform-origin: top;
+            transition: transform 0.6s ease;
+            z-index: 8;
+        }
+
+        /* Letter Styling - FIXED CENTERED REVEAL */
+        .letter {
+            position: absolute;
+            top: 5%;
+            left: 5%;
+            width: 90%;
+            height: 90%;
+            background: var(--paper-color);
+            padding: 20px;
+            transition: all 0.9s 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            z-index: 6; /* Hidden between envelope layers */
+            overflow-y: auto;
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .letter p { 
+            font-size: 1.05rem; 
+            line-height: 1.6; 
+            color: var(--text-color); 
+            white-space: pre-wrap;
+            opacity: 0; /* Hidden until typing starts */
+        }
 
         /* Photo and Mini Kiss */
         .photo-container {
-            position: relative; width: 100%; display: none; /* Hide initially */
-            margin-top: 20px; text-align: center; padding-bottom: 40px;
+            position: relative;
+            width: 100%;
+            display: none;
+            margin-top: 25px;
+            text-align: center;
+            padding-bottom: 30px;
         }
         .photo-container img {
-            max-width: 90%; height: auto; border: 10px solid white; border-bottom: 40px solid white;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2); transform: rotate(-3deg);
+            width: 90%;
+            height: auto;
+            border: 8px solid white;
+            border-bottom: 35px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: rotate(-2deg);
         }
-        .photo-kiss {
-            position: absolute; top: 20%; right: 15%; font-size: 60px;
-            opacity: 0; transform: scale(0); pointer-events: none;
+        .photo-kiss { position: absolute; top: 15%; right: 15%; font-size: 50px; opacity: 0; transform: scale(0); }
+
+        /* INTERACTION STATES */
+        .wrapper.open .flap { transform: rotateX(180deg); z-index: 4; }
+        
+        .wrapper.open .letter { 
+            top: -120px; /* Slides up just enough to be seen */
+            height: 450px; /* Expands to full reading size */
+            z-index: 20; /* Brings it to the very front */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
         }
 
-        /* Animations */
-        .wrapper.open .flap { transform: rotateX(180deg); z-index: 0; }
-        .wrapper.open .seal { opacity: 0; transition: 0.3s; }
-        .wrapper.open .letter { transform: translateY(-140px); height: 420px; z-index: 10; }
+        .wrapper.open .letter p { opacity: 1; transition: opacity 0.5s 1s; }
 
-        .photo-fade-in { display: block !important; animation: fadeInSlide 1.2s forwards ease-out; }
-        @keyframes fadeInSlide { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .photo-fade-in { display: block !important; animation: fadeInSlide 1s forwards ease-out; }
+        @keyframes fadeInSlide { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         .mini-kiss-animate { animation: miniSmack 0.6s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes miniSmack { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1) rotate(15deg); opacity: 1; } }
+        @keyframes miniSmack { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1.2) rotate(15deg); opacity: 1; } }
 
         .particle { position: absolute; top: 50%; left: 50%; pointer-events: none; z-index: 100; }
         @keyframes explode { 0% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
 
-        .letter::-webkit-scrollbar { width: 4px; }
-        .letter::-webkit-scrollbar-thumb { background: var(--accent-pink); border-radius: 10px; }
+        .letter::-webkit-scrollbar { width: 3px; }
+        .letter::-webkit-scrollbar-thumb { background: var(--accent-pink); }
     </style>
 </head>
 <body>
@@ -117,7 +175,6 @@
     <div class="wrapper" id="main-wrapper" onclick="openLetter()">
         <div class="envelope">
             <div class="flap"></div>
-            <div class="seal">❤️</div>
             <div class="letter" id="letter-container">
                 <p id="typewriter-text"></p>
                 <div class="photo-container" id="photo-reveal">
@@ -129,7 +186,7 @@
     </div>
 
     <script>
-        const content = "Eliana ❤️\n\nI wanted to make something just for you, not big or complicated  just honest. You have this way of making days brighter and moments feel lighter, without even trying. Being with you feels natural, comforting, and special. This is a reminder that you matter to me more than I can fully say. Always yours, I love you smm baby ❤️";
+        const content = "Eliana ❤️\n\nI wanted to make something just for you, not big or complicated  just honest. You have this way of making days brighter and moments feel lighter, without even trying. Being with you feels natural, comforting, and special. This is a reminder that you matter to me more than I can fully say.\n\nAlways yours, I love you smm baby ❤️";
         
         let opened = false;
 
@@ -144,17 +201,23 @@
             opened = true;
             document.getElementById('main-wrapper').classList.add('open');
             triggerExplosion();
-            setTimeout(() => { document.getElementById('kiss-overlay').classList.add('kiss-active'); }, 500);
-            setTimeout(startTyping, 1500);
+            
+            // Big screen kiss
+            setTimeout(() => { 
+                document.getElementById('kiss-overlay').classList.add('kiss-active'); 
+            }, 500);
+
+            // Wait for letter to expand then type
+            setTimeout(startTyping, 1800);
         }
 
         function triggerExplosion() {
-            for (let i = 0; i < 40; i++) {
+            for (let i = 0; i < 30; i++) {
                 const p = document.createElement('div');
                 p.className = 'particle';
                 p.innerHTML = ['❤️', '✨', '💖'][Math.floor(Math.random() * 3)];
-                p.style.setProperty('--tx', (Math.random() - 0.5) * 400 + 'px');
-                p.style.setProperty('--ty', (Math.random() - 0.8) * 400 + 'px');
+                p.style.setProperty('--tx', (Math.random() - 0.5) * 350 + 'px');
+                p.style.setProperty('--ty', (Math.random() - 0.8) * 350 + 'px');
                 p.style.animation = 'explode 1s ease-out forwards';
                 document.body.appendChild(p);
                 setTimeout(() => p.remove(), 1000);
@@ -173,20 +236,22 @@
                     target.textContent += content.charAt(i);
                     i++;
                     
-                    // Smoother scroll logic: only scroll if the text is near the bottom
-                    if (container.scrollHeight - container.scrollTop < 250) {
+                    // Controlled scroll
+                    if (container.scrollHeight - container.scrollTop < container.clientHeight + 100) {
                         container.scrollTop = container.scrollHeight;
                     }
-                    setTimeout(type, 50);
+                    setTimeout(type, 45);
                 } else {
-                    // Final reveal
+                    // Reveal Photo
                     setTimeout(() => {
                         photo.classList.add('photo-fade-in');
                         setTimeout(() => {
                             container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-                            setTimeout(() => { miniKiss.classList.add('mini-kiss-animate'); }, 800);
-                        }, 200);
-                    }, 500);
+                            setTimeout(() => { 
+                                miniKiss.classList.add('mini-kiss-animate'); 
+                            }, 800);
+                        }, 300);
+                    }, 600);
                 }
             }
             type();
@@ -197,281 +262,10 @@
             h.className = 'ambient-heart';
             h.innerHTML = '❤️';
             h.style.left = Math.random() * 100 + 'vw';
-            h.style.fontSize = Math.random() * 15 + 10 + 'px';
+            h.style.fontSize = Math.random() * 10 + 10 + 'px';
             document.getElementById('heart-container').appendChild(h);
             setTimeout(() => h.remove(), 6000);
         }
-    </script>
-</body>
-</html>
-        .screen-container {
-            width: 100%;
-            height: 140px;
-            background: #1a3a2a;
-            border: 3px solid #0a0a0a;
-            border-radius: 2px;
-            box-shadow: 
-                inset 0 2px 5px rgba(0, 0, 0, 0.9),
-                inset 0 -2px 5px rgba(0, 0, 0, 0.5),
-                0 2px 8px rgba(0, 0, 0, 0.7);
-            padding: 8px;
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        }
-
-        .screen-display {
-            width: 100%;
-            height: 100%;
-            color: #00d400;
-            font-size: 13px;
-            line-height: 1.4;
-            overflow-y: auto;
-            overflow-x: hidden;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            text-shadow: 0 0 2px rgba(0, 212, 0, 0.3);
-            word-wrap: break-word;
-            word-break: break-all;
-        }
-
-        .screen-display::-webkit-scrollbar {
-            width: 3px;
-        }
-
-        .screen-display::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .screen-display::-webkit-scrollbar-thumb {
-            background: rgba(0, 212, 0, 0.5);
-            border-radius: 2px;
-        }
-
-        .input-section {
-            margin-top: 12px;
-            display: flex;
-            gap: 8px;
-        }
-
-        #userInput {
-            flex: 1;
-            padding: 8px;
-            border: 2px solid #0a0a0a;
-            border-radius: 2px;
-            background: #0f0f0f;
-            color: #00d400;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            outline: none;
-        }
-
-        #userInput::placeholder {
-            color: #004400;
-        }
-
-        #userInput:focus {
-            border-color: #00d400;
-            box-shadow: 0 0 8px rgba(0, 212, 0, 0.3);
-        }
-
-        .send-btn {
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #00d400 0%, #009900 100%);
-            color: #000;
-            border: none;
-            border-radius: 2px;
-            font-weight: bold;
-            font-size: 11px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            transition: all 0.2s;
-            box-shadow: 0 2px 5px rgba(0, 212, 0, 0.3);
-        }
-
-        .send-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 1px 2px rgba(0, 212, 0, 0.3);
-        }
-
-        .send-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .blink {
-            animation: blink 0.7s infinite;
-        }
-
-        @keyframes blink {
-            0%, 49% { opacity: 1; }
-            50%, 100% { opacity: 0; }
-        }
-
-        .loading-indicator {
-            display: inline-block;
-            color: #00d400;
-        }
-
-        @media (max-width: 360px) {
-            .calculator-body {
-                max-width: 100%;
-            }
-
-            .screen-display {
-                font-size: 12px;
-            }
-
-            #userInput {
-                font-size: 11px;
-            }
-
-            .send-btn {
-                font-size: 10px;
-                padding: 6px 12px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="calculator-body">
-        <div class="screen-container">
-            <div class="screen-display" id="display">CASIO AI v1.0
-READY FOR INPUT</div>
-        </div>
-        <div class="input-section">
-            <input 
-                type="text" 
-                id="userInput" 
-                placeholder="Enter query..."
-                maxlength="100"
-            >
-            <button class="send-btn" id="sendBtn">SEND</button>
-        </div>
-    </div>
-
-    <script>
-        const display = document.getElementById('display');
-        const userInput = document.getElementById('userInput');
-        const sendBtn = document.getElementById('sendBtn');
-
-        // Initialize display
-        function initDisplay() {
-            display.textContent = 'CASIO AI v1.0\nREADY FOR INPUT';
-            scrollToBottom();
-        }
-
-        function scrollToBottom() {
-            display.scrollTop = display.scrollHeight;
-        }
-
-        function appendDisplay(text) {
-            if (display.textContent.includes('READY FOR INPUT')) {
-                display.textContent = '';
-            }
-            display.textContent += text;
-            scrollToBottom();
-        }
-
-        function showLoading() {
-            appendDisplay('\n\nPROCESSING');
-            const loadingSpan = document.createElement('span');
-            loadingSpan.className = 'loading-indicator blink';
-            loadingSpan.textContent = '_';
-            display.appendChild(loadingSpan);
-        }
-
-        function clearLoading() {
-            const loadingSpan = display.querySelector('.loading-indicator');
-            if (loadingSpan) {
-                loadingSpan.remove();
-            }
-        }
-
-        async function queryAI(query) {
-            sendBtn.disabled = true;
-            userInput.disabled = true;
-
-            appendDisplay('\n> ' + query.toUpperCase());
-            showLoading();
-
-            try {
-                const apiKey = '';
-
-                // Using CORS proxy to bypass CORS restrictions
-                const corsProxy = 'https://api.allorigins.win/raw?url=';
-                const openaiUrl = 'https://api.openai.com/v1/chat/completions';
-                
-                const encodedUrl = encodeURIComponent(openaiUrl);
-
-                const response = await fetch(corsProxy + encodedUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: 'gpt-3.5-turbo',
-                        messages: [
-                            {
-                                role: 'user',
-                                content: query
-                            }
-                        ],
-                        max_tokens: 200
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('API request failed');
-                }
-
-                const data = await response.json();
-                clearLoading();
-                
-                if (data.choices && data.choices[0] && data.choices[0].message) {
-                    const aiResponse = data.choices[0].message.content;
-                    appendDisplay('\n\n' + aiResponse.substring(0, 200));
-                } else {
-                    appendDisplay('\n\nERROR: INVALID RESPONSE');
-                }
-            } catch (error) {
-                clearLoading();
-                appendDisplay('\n\nERROR: ' + error.message);
-            } finally {
-                sendBtn.disabled = false;
-                userInput.disabled = false;
-                userInput.value = '';
-                userInput.focus();
-            }
-        }
-
-        sendBtn.addEventListener('click', () => {
-            const query = userInput.value.trim();
-            if (query) {
-                queryAI(query);
-            }
-        });
-
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const query = userInput.value.trim();
-                if (query) {
-                    queryAI(query);
-                }
-            }
-        });
-
-        userInput.addEventListener('input', (e) => {
-            // Optional: Show typed input on screen as you type
-            // Uncomment for "calculator key press" effect
-            // appendDisplay(e.key);
-        });
-
-        // Focus input on load
-        userInput.focus();
     </script>
 </body>
 </html>
